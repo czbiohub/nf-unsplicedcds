@@ -1,6 +1,6 @@
 # ![nf-core/unsplicedcds](docs/images/nf-core-unsplicedcds_logo.png)
 
-**This workflow will find unspliced coding sequences from bams.**.
+**This workflow will find unspliced coding sequences from bams.**
 
 [![Build Status](https://travis-ci.com/nf-core/unsplicedcds.svg?branch=master)](https://travis-ci.com/nf-core/unsplicedcds)
 [![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A50.32.0-brightgreen.svg)](https://www.nextflow.io/)
