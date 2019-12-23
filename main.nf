@@ -212,7 +212,7 @@ process samtools_get_unspliced {
 
     script:
     """
-    samtools view -h -F 4 $bam awk '\$6 !~ /N/ || $\1 ~ /@/' | samtools view -bS > ${bam.simpleName}_unspliced.bam $task.cpus
+    samtools view -h -F 4 $bam awk '\$6 !~ /N/ || \$1 ~ /@/' | samtools view -bS > ${bam.simpleName}_unspliced.bam $task.cpus
     """
 }
 
