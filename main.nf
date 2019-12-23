@@ -104,26 +104,12 @@ ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
 /*
  * Create a channel for input read files
  */
-if (params.readPaths) {
-    if (params.singleEnd) {
-        Channel
-            .from(params.readPaths)
-            .map { row -> [ row[0], [ file(row[1][0], checkIfExists: true) ] ] }
-            .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-            .into { read_files_fastqc; read_files_trimming }
-    } else {
-        Channel
-            .from(params.readPaths)
-            .map { row -> [ row[0], [ file(row[1][0], checkIfExists: true), file(row[1][1], checkIfExists: true) ] ] }
-            .ifEmpty { exit 1, "params.readPaths was empty - no input files supplied" }
-            .into { read_files_fastqc; read_files_trimming }
-    }
-} else {
-    Channel
-        .fromFilePairs( params.bam, size: params.singleEnd ? 1 : 2 )
-        .ifEmpty { exit 1, "Cannot find any bams matching: ${params.bam}\nNB: Path needs to be enclosed in quotes!\nIf this is single-end data, please specify --singleEnd on the command line." }
-        .into { read_files_fastqc; read_files_trimming }
-}
+ if (params.bam) {
+  Channel.fromPath(params.bam, checkIfExists: true)
+       .map{ f -> tuple(f.baseName, tuple(file(f))) }
+       .ifEmpty { exit 1, "Bam file not found: ${params.bam}" }
+       .set{bam_ch}
+
 
 // Header log info
 log.info nfcoreHeader()
@@ -212,7 +198,7 @@ process samtools_get_unspliced {
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
     input:
-    set val(name), file(bam) from read_files_bam
+    set val(name), file(bam) bam_ch
 
     output:
     file "*_.unspliced.bam" into unspliced_bam
