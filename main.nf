@@ -110,6 +110,12 @@ ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
        .ifEmpty { exit 1, "Bam file not found: ${params.bam}" }
        .set{bam_ch}
 
+ if (params.gtf) {
+   Channel.fromPath(params.gtf, checkIfExists: true)
+      .map{ f -> tuple(f.baseName, tuple(file(f)))}
+      .ifEmpty {exit 1, "Gtf file not found: ${params.gtf}"}
+      .set{gtf_ch}
+ }
 
 // Header log info
 log.info nfcoreHeader()
@@ -117,8 +123,9 @@ def summary = [:]
 if (workflow.revision) summary['Pipeline Release'] = workflow.revision
 summary['Run Name']         = custom_runName ?: workflow.runName
 // TODO nf-core: Report custom parameters here
-summary["BAM"]              = params.bam
+summary['BAM']              = params.bam
 summary['Fasta Ref']        = params.fasta
+summary['GTF']              = params.gtf
 summary['Data Type']        = params.singleEnd ? 'Single-End' : 'Paired-End'
 summary['Max Resources']    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
 if (workflow.containerEngine) summary['Container'] = "$workflow.containerEngine - $workflow.container"
@@ -189,7 +196,7 @@ process get_software_versions {
 }
 
 /*
- * STEP 1 - FastQC
+ * STEP 1 - Samtools - get unspliced
  */
 process samtools_get_unspliced {
     tag "$name"
@@ -198,14 +205,14 @@ process samtools_get_unspliced {
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
     input:
-    set val(name), file(bam) bam_ch
+    set val(name), file(bam) from bam_ch
 
     output:
     file "*_.unspliced.bam" into unspliced_bam
 
     script:
     """
-    samtools view -h -F 4 $bam awk '$6 !~ /N/ || $1 ~ /@/' | samtools view -bS - --quiet --threads $task.cpus
+    samtools view -h -F 4 $bam awk '$6 !~ /N/ || $1 ~ /@/' | samtools view -bS > ${bam.simpleName}_unspliced.bam $task.cpus
     """
 }
 
