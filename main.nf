@@ -190,7 +190,7 @@ process get_software_versions {
     echo $workflow.manifest.version > v_pipeline.txt
     echo $workflow.nextflow.version > v_nextflow.txt
     samtools --version > v_samtools.txt
-    bedtools --version > bedtools.txt
+    bedtools --version > v_bedtools.txt
     scrape_software_versions.py &> software_versions_mqc.yaml
     """
 }
@@ -212,7 +212,7 @@ process samtools_get_unspliced {
 
     script:
     """
-    samtools view -h -F 4 $bam awk '$6 !~ /N/ || $1 ~ /@/' | samtools view -bS > ${bam.simpleName}_unspliced.bam $task.cpus
+    samtools view -h -F 4 $bam awk '\$6 !~ /N/ || $\1 ~ /@/' | samtools view -bS > ${bam.simpleName}_unspliced.bam $task.cpus
     """
 }
 
