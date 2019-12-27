@@ -109,7 +109,7 @@ ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
        .map{ f -> tuple(f.baseName, tuple(file(f))) }
        .ifEmpty { exit 1, "Bam file not found: ${params.bam}" }
        .set{bam_ch}
-
+}
  if (params.gtf) {
    Channel.fromPath(params.gtf, checkIfExists: true)
       .map{ f -> tuple(f.baseName, tuple(file(f)))}
