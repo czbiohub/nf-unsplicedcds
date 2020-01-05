@@ -200,7 +200,7 @@ process get_software_versions {
  */
 process samtools_get_unspliced {
     tag "$name"
-    label 'process_medium'
+    label 'process_low'
     publishDir "${params.outdir}/bam_unspliced", mode: 'copy',
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
