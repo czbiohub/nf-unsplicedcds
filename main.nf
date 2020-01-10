@@ -208,7 +208,7 @@ process samtools_get_unspliced {
     set val(name), file(bam) from bam_ch
 
     output:
-    file "*_.unspliced.bam" into unspliced_bam
+    file "*_unspliced.bam" into unspliced_bam
 
     script:
     """
