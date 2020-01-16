@@ -237,7 +237,7 @@ process unzip_GTF {
 
     script:
     """
-     gunzip -c $gz > ${gtf.simpleName}.gtf
+     gunzip -c $gz > ${gz.simpleName}.gtf
     """
 }
 
