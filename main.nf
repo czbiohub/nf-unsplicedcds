@@ -244,14 +244,14 @@ process unzip_GTF {
 process remove_chromM_from_GTF {
     tag "$name"
     label 'process_low'
-    publishDir "${params.outdir}/no_chrom_M_gtf", mode: 'copy',
+    publishDir "${params.outdir}/no_chromM_gtf", mode: 'copy',
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
     input:
     set val(name), file(gtf) from gtf_ch
 
     output:
-    file "*_no_chromM.gtf" into no_chrom_M_gtf
+    file "*_no_chromM.gtf" into no_chromM_gtf
 
     script:
     """
