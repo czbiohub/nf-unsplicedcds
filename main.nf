@@ -33,6 +33,7 @@ def helpMessage() {
       --outdir                      Local or S3 directory where resulting files will be saved.
       --bam                         Path to input bam file (must be surrounded with quotes)
       --gtf                         Path to input gtf file.
+      --gtf.gz                      Path to unzipped gtf file. 
       -profile                      Configuration profile to use. Can use multiple (comma separated)
                                     Available: conda, docker, singularity, awsbatch, test and more.
 
@@ -109,6 +110,12 @@ ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
        .map{ f -> tuple(f.baseName, tuple(file(f))) }
        .ifEmpty { exit 1, "Bam file not found: ${params.bam}" }
        .set{bam_ch}
+}
+if (params.gtf.gz) {
+  Channel.fromPath(params.gtf.gz, checkIfExists: true)
+     .map{ f -> tuple(f.baseName, tuple(file(f)))}
+     .ifEmpty {exit 1, "Gtf.gz file not found: ${params.gtf.gz}"}
+     .set{gtf.gz_ch}
 }
  if (params.gtf) {
    Channel.fromPath(params.gtf, checkIfExists: true)
@@ -213,6 +220,23 @@ process samtools_get_unspliced {
     script:
     """
     samtools view -h -F 4 $bam  | awk '\$6 !~ /N/ || \$1 ~ /@/' | samtools view -bS > ${bam.simpleName}_unspliced.bam
+    """
+}
+process unzip_GTF {
+    tag "$name"
+    label 'process_low'
+    publishDir "${params.outdir}/unzipped_gtf", mode: 'copy',
+        saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
+
+    input:
+    set val(name), file(gtf.gz) from gtf.gz_ch
+
+    output:
+    file "*_.gtf" into unzipped_gtf
+
+    script:
+    """
+     gunzip -c $gtf.gz > ${gtf.simpleName}.gtf
     """
 }
 
