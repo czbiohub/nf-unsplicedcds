@@ -216,6 +216,25 @@ process samtools_get_unspliced {
     """
 }
 
+process remove_chromM_from_GTF {
+    tag "$name"
+    label 'process_low'
+    publishDir "${params.outdir}/no_chrom_M_gtf", mode: 'copy',
+        saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
+
+    input:
+    set val(name), file(gtf) from gtf_ch
+
+    output:
+    file "*_no_chromM.gtf" into no_chrom_M_gtf
+
+    script:
+    """
+     bioawk -c gff '$seqname != "chrM"' $gtf > ${gtf.simpleName}_no_chromM.gtf
+    """
+}
+
+
 /*
  * STEP 2 -
  */
