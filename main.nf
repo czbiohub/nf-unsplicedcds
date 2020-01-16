@@ -255,7 +255,7 @@ process remove_chromM_from_GTF {
 
     script:
     """
-     bioawk -c gff 'seqname != "chrM"' $gtf > ${gtf.simpleName}_no_chromM.gtf
+     bioawk -c gff '$seqname != "chrM"' $gtf > ${gtf.simpleName}_no_chromM.gtf
     """
 }
 
