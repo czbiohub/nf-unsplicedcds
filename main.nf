@@ -33,7 +33,7 @@ def helpMessage() {
       --outdir                      Local or S3 directory where resulting files will be saved.
       --bam                         Path to input bam file (must be surrounded with quotes)
       --gtf                         Path to input gtf file.
-      --gtf.gz                      Path to unzipped gtf file. 
+      --gz                          Path to unzipped gtf file.
       -profile                      Configuration profile to use. Can use multiple (comma separated)
                                     Available: conda, docker, singularity, awsbatch, test and more.
 
@@ -111,11 +111,11 @@ ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
        .ifEmpty { exit 1, "Bam file not found: ${params.bam}" }
        .set{bam_ch}
 }
-if (params.gtf.gz) {
-  Channel.fromPath(params.gtf.gz, checkIfExists: true)
+if (params.gz) {
+  Channel.fromPath(params.gz, checkIfExists: true)
      .map{ f -> tuple(f.baseName, tuple(file(f)))}
-     .ifEmpty {exit 1, "Gtf.gz file not found: ${params.gtf.gz}"}
-     .set{gtf.gz_ch}
+     .ifEmpty {exit 1, "gz file not found: ${params.gz}"}
+     .set{gz_ch}
 }
  if (params.gtf) {
    Channel.fromPath(params.gtf, checkIfExists: true)
@@ -133,6 +133,7 @@ summary['Run Name']         = custom_runName ?: workflow.runName
 summary['BAM']              = params.bam
 summary['Fasta Ref']        = params.fasta
 summary['GTF']              = params.gtf
+summary['gz']               = params.gz
 summary['Data Type']        = params.singleEnd ? 'Single-End' : 'Paired-End'
 summary['Max Resources']    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
 if (workflow.containerEngine) summary['Container'] = "$workflow.containerEngine - $workflow.container"
@@ -229,14 +230,14 @@ process unzip_GTF {
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
     input:
-    set val(name), file(gtf.gz) from gtf.gz_ch
+    set val(name), file(gz) from gz_ch
 
     output:
     file "*_.gtf" into unzipped_gtf
 
     script:
     """
-     gunzip -c $gtf.gz > ${gtf.simpleName}.gtf
+     gunzip -c $gz > ${gtf.simpleName}.gtf
     """
 }
 
