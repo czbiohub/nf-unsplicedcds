@@ -233,7 +233,7 @@ process unzip_GTF {
     set val(name), file(gz) from gz_ch
 
     output:
-    file "*_.gtf" into unzipped_gtf
+    file "*.gtf" into unzipped_gtf
 
     script:
     """
