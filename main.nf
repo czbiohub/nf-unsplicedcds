@@ -266,14 +266,14 @@ process get_only_CDSs {
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
     input:
-    set val(name), file(gtf) from gtf_ch
+    set val(name), file x from no_chromM_gtf
 
     output:
     file "*_cds.gtf" into only_CDS
 
     script:
     """
-     bioawk -c gff 'feature == "CDS"' $gtf > ${gtf.simpleName}_cds.gtf
+     bioawk -c gff 'feature == "CDS"' $x > ${gtf.simpleName}_cds.gtf
     """
 }
 
