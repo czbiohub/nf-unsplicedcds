@@ -273,7 +273,7 @@ process get_only_CDSs {
 
     script:
     """
-     bioawk -c gff 'feature == "CDS"' $x > ${gtf.simpleName}_cds.gtf
+     bioawk -c gff 'feature == "CDS"' $x > ${x.simpleName}_cds.gtf
     """
 }
 
