@@ -266,7 +266,7 @@ process get_only_CDSs {
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
     input:
-    set val(name), file x from no_chromM_gtf
+    file x from no_chromM_gtf
 
     output:
     file "*_cds.gtf" into only_CDS
