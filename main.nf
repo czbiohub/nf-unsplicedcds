@@ -269,7 +269,7 @@ process get_only_CDSs {
     file x from no_chromM_gtf
 
     output:
-    file "*_cds.gtf" into only_CDS
+    file x into only_CDS
 
     script:
     """
