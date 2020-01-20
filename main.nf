@@ -269,11 +269,11 @@ process get_only_CDSs {
     file x from no_chromM_gtf
 
     output:
-    file x into only_CDS
+    file "*_cds.gtf" into only_CDS
 
     script:
     """
-     bioawk -c gff 'feature == "CDS"' $x > ${x.simpleName}_cds.gtf
+     bioawk -c gff '\$feature == "CDS"' $x > ${x.simpleName}_cds.gtf
     """
 }
 
