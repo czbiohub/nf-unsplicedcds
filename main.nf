@@ -292,7 +292,7 @@ process intersect_cds_bam {
 
     script:
     """
-     bedtools intersect -f 1 -a $y -b $x > *.bam
+     bedtools intersect -f 1 -a $y -b $x 
     """
 }
 
