@@ -241,7 +241,7 @@ process unzip_GTF {
     """
 }
 
-process remove_chromM_from_GTF {
+process remove_chrom_m_from_gtf {
     tag "$name"
     label 'process_low'
     publishDir "${params.outdir}/no_chromM_gtf", mode: 'copy',
