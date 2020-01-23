@@ -241,7 +241,7 @@ process unzip_GTF {
     """
 }
 
-process remove_chromM_from_GTF {
+process remove_chrom_m_from_gtf {
     tag "$name"
     label 'process_low'
     publishDir "${params.outdir}/no_chromM_gtf", mode: 'copy',
@@ -259,7 +259,7 @@ process remove_chromM_from_GTF {
     """
 }
 /*need to get just coding sequences with input as _no_chromM*/
-process get_only_CDSs {
+process get_only_cds {
     tag "$name"
     label 'process_low'
     publishDir "${params.outdir}/only_cds", mode: 'copy',
