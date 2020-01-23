@@ -259,25 +259,42 @@ process remove_chromM_from_GTF {
     """
 }
 /*need to get just coding sequences with input as _no_chromM*/
-process get_only_CDSs {
+process get_only_cds {
     tag "$name"
     label 'process_low'
-    publishDir "${params.outdir}/only_CDS", mode: 'copy',
+    publishDir "${params.outdir}/only_cds", mode: 'copy',
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
     input:
     file x from no_chromM_gtf
 
     output:
-    file "*_cds.gtf" into only_CDS
+    file "*_cds.gtf" into only_cds
 
     script:
     """
      bioawk -c gff '\$feature == "CDS"' $x > ${x.simpleName}_cds.gtf
     """
 }
+/*writing process for intersecting CDs with BAM*/
+process intersect_cds_bam {
+    tag "$name"
+    label 'process_low'
+    publishDir "${params.outdir}/unspliced_bam_in_cds", mode: 'copy',
+        saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
+    input:
+    file x from get_only_cds
+    file y from samtools_get_unspliced
 
+    output:
+    file "*_unspliced_cds.bam" into unspliced_bam_in_cds
+
+    script:
+    """
+     bedtools intersect -f 1 -a $y -b $x > ${x.simpleName}_cds.gtf
+    """
+}
 
 /*
  * STEP 2 -
