@@ -259,7 +259,7 @@ process remove_chromM_from_GTF {
     """
 }
 /*need to get just coding sequences with input as _no_chromM*/
-process get_only_CDSs {
+process get_only_cds {
     tag "$name"
     label 'process_low'
     publishDir "${params.outdir}/only_cds", mode: 'copy',
