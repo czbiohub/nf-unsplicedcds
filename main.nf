@@ -259,7 +259,7 @@ process remove_chromM_from_GTF {
     """
 }
 /*need to get just coding sequences with input as _no_chromM*/
-process get_only_cds {
+process get_only_CDSs {
     tag "$name"
     label 'process_low'
     publishDir "${params.outdir}/only_cds", mode: 'copy',
@@ -284,7 +284,7 @@ process intersect_cds_bam {
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
     input:
-    file x from get_only_cds
+    file x from get_only_CDSs
     file y from samtools_get_unspliced
 
     output:
