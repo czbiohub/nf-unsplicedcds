@@ -284,7 +284,7 @@ process intersect_cds_bam {
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
     input:
-    file x from get_only_cds
+    /*file x from get_only_cds*/
     file y from samtools_get_unspliced
 
     output:
@@ -292,7 +292,7 @@ process intersect_cds_bam {
 
     script:
     """
-     bedtools intersect -f 1 -a $y -b $x > ${x.simpleName}_cds.bam
+     bedtools intersect -f 1 -a $y -b $x > ${y.simpleName}_cds.bam
     """
 }
 
