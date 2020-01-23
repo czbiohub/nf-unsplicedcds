@@ -288,7 +288,7 @@ process intersect_cds_bam {
     file y from unspliced_bam
 
     output:
-    file "*_unspliced_cds.bam" into unspliced_bam_in_cds
+    file "*_cds.bam" into unspliced_bam_in_cds
 
     script:
     """
