@@ -277,14 +277,14 @@ process get_only_cds {
     """
 }
 /*writing process for intersecting CDs with BAM*/
-/*process intersect_cds_bam {
+process intersect_cds_bam {
     tag "$name"
     label 'process_low'
     publishDir "${params.outdir}/unspliced_bam_in_cds", mode: 'copy',
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
     input:
-    file x from get_only_CDSs
+    file x from get_only_cds
     file y from samtools_get_unspliced
 
     output:
@@ -292,9 +292,9 @@ process get_only_cds {
 
     script:
     """
-     bedtools intersect -f 1 -a $y -b $x > ${x.simpleName}_cds.gtf
+     bedtools intersect -f 1 -a $y -b $x > ${x.simpleName}_cds.bam
     """
-}*/
+}
 
 /*
  * STEP 2 -
