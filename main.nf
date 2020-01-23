@@ -277,7 +277,7 @@ process get_only_CDSs {
     """
 }
 /*writing process for intersecting CDs with BAM*/
-process intersect_cds_bam {
+/*process intersect_cds_bam {
     tag "$name"
     label 'process_low'
     publishDir "${params.outdir}/unspliced_bam_in_cds", mode: 'copy',
@@ -294,7 +294,7 @@ process intersect_cds_bam {
     """
      bedtools intersect -f 1 -a $y -b $x > ${x.simpleName}_cds.gtf
     """
-}
+}*/
 
 /*
  * STEP 2 -
