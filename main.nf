@@ -288,11 +288,11 @@ process intersect_cds_bam {
     file y from unspliced_bam
 
     output:
-    file "*_cds.bam" into unspliced_bam_in_cds
+    file "*.bam" into unspliced_bam_in_cds
 
     script:
     """
-     bedtools intersect -f 1 -a $y -b $x > ${y.simpleName}_cds.bam
+     bedtools intersect -f 1 -a $y -b $x > ${bam.simpleName}.bam
     """
 }
 
