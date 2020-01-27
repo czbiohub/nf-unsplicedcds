@@ -296,6 +296,26 @@ process intersect_cds_bam {
     """
 }
 
+process extract_stop_codons_from_gtf {
+    tag "$name"
+    label 'process_low'
+    publishDir "${params.outdir}/stop_codons_gtf", mode: 'copy',
+        saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
+
+    input:
+    set val(name), file(gtf) from gtf_ch
+
+    output:
+    file "*_stop_codon.gtf" into stop_codons_gtf
+
+    script:
+    """
+     bioawk -c gff 'feature == "stop_codon"' $gtf > ${gtf.simpleName}_stop_codon.gtf
+    """
+}
+
+
+
 /*
  * STEP 2 -
  */
