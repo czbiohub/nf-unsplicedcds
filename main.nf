@@ -295,7 +295,7 @@ process intersect_cds_bam {
      bedtools intersect -f 1 -a $y -b $x > ${y.simpleName}_cds.bam
     """
 }
-
+/*getting stop codon from gtf*/
 process extract_stop_codons_from_gtf {
     tag "$name"
     label 'process_low'
