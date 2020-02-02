@@ -26,7 +26,7 @@ def helpMessage() {
           --bam possorted_genome_bam.bam
     With GTF file:
           nextflow run main.nf \
-          --outdir ./results \
+          --outdir ./results \s
           --gtf genomic.gtf
 
     Mandatory arguments:
@@ -119,7 +119,6 @@ if (params.gz) {
      .set{gz_ch}
 }
 
-}
 if (params.gz) {
   Channel.fromPath(params.gz, checkIfExists: true)
      .map{ f -> tuple(f.baseName, tuple(file(f)))}
