@@ -26,7 +26,7 @@ def helpMessage() {
           --bam possorted_genome_bam.bam
     With GTF file:
           nextflow run main.nf \
-          --outdir ./results \s
+          --outdir ./results \
           --gtf genomic.gtf
 
     Mandatory arguments:
