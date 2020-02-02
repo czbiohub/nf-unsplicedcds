@@ -110,7 +110,7 @@ ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
        .map{ f -> tuple(f.baseName, tuple(file(f))) }
        .ifEmpty { exit 1, "Bam file not found: ${params.bam}" }
        .set{bam_ch}
-<<<<<<< HEAD
+
 }
 if (params.gz) {
   Channel.fromPath(params.gz, checkIfExists: true)
@@ -118,7 +118,7 @@ if (params.gz) {
      .ifEmpty {exit 1, "gz file not found: ${params.gz}"}
      .set{gz_ch}
 }
-=======
+
 }
 if (params.gz) {
   Channel.fromPath(params.gz, checkIfExists: true)
@@ -126,7 +126,7 @@ if (params.gz) {
      .ifEmpty {exit 1, "gz file not found: ${params.gz}"}
      .set{gz_ch}
 }
->>>>>>> 47f8e477cadd91bf678db4512e0b2e037188f8ac
+
  if (params.gtf) {
    Channel.fromPath(params.gtf, checkIfExists: true)
       .map{ f -> tuple(f.baseName, tuple(file(f)))}
@@ -256,7 +256,6 @@ process remove_chrom_m_from_gtf {
     label 'process_low'
     publishDir "${params.outdir}/no_chromM_gtf", mode: 'copy',
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
-<<<<<<< HEAD
 
     input:
     set val(name), file(gtf) from gtf_ch
@@ -287,19 +286,7 @@ process get_only_cds {
      bioawk -c gff '\$feature == "CDS"' $x > ${x.simpleName}_cds.gtf
     """
 }
-=======
 
-    input:
-    set val(name), file(gtf) from gtf_ch
-
-    output:
-    file "*_no_chromM.gtf" into no_chromM_gtf
-
-    script:
-    """
-     bioawk -c gff 'seqname != "chrM"' $gtf > ${gtf.simpleName}_no_chromM.gtf
-    """
-}
 /*need to get just coding sequences with input as _no_chromM*/
 process get_only_cds {
     tag "$name"
@@ -318,7 +305,7 @@ process get_only_cds {
      bioawk -c gff '\$feature == "CDS"' $x > ${x.simpleName}_cds.gtf
     """
 }
->>>>>>> 47f8e477cadd91bf678db4512e0b2e037188f8ac
+
 /*writing process for intersecting CDs with BAM*/
 process intersect_cds_bam {
     tag "$name"
@@ -338,7 +325,6 @@ process intersect_cds_bam {
      bedtools intersect -f 1 -a $y -b $x > ${y.simpleName}_cds.bam
     """
 }
-<<<<<<< HEAD
 /*getting stop codon from gtf*/
 process extract_stop_codons_from_gtf {
     tag "$name"
@@ -357,11 +343,6 @@ process extract_stop_codons_from_gtf {
      bioawk -c gff 'feature == "stop_codon"' $gtf > ${gtf.simpleName}_stop_codon.gtf
     """
 }
-
-
-=======
->>>>>>> 47f8e477cadd91bf678db4512e0b2e037188f8ac
-
 /*
  * STEP 2 -
  */
