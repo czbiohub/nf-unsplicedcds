@@ -267,24 +267,6 @@ process remove_chrom_m_from_gtf {
      bioawk -c gff 'seqname != "chrM"' $gtf > ${gtf.simpleName}_no_chromM.gtf
     """
 }
-/*need to get just coding sequences with input as _no_chromM*/
-process get_only_cds {
-    tag "$name"
-    label 'process_low'
-    publishDir "${params.outdir}/only_cds", mode: 'copy',
-        saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
-
-    input:
-    file x from no_chromM_gtf
-
-    output:
-    file "*_cds.gtf" into only_cds
-
-    script:
-    """
-     bioawk -c gff '\$feature == "CDS"' $x > ${x.simpleName}_cds.gtf
-    """
-}
 
 /*need to get just coding sequences with input as _no_chromM*/
 process get_only_cds {
