@@ -125,6 +125,7 @@ if (params.gz) {
       .ifEmpty {exit 1, "Gtf file not found: ${params.gtf}"}
       .set{gtf_ch}
  }
+ gtf_ch.into{gtf_for_remove_chromM; gtf_for_extract_stop_codons}
 
 // Header log info
 log.info nfcoreHeader()
@@ -250,7 +251,7 @@ process remove_chrom_m_from_gtf {
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
     input:
-    set val(name), file(gtf) from gtf_ch
+    set val(name), file(gtf) from gtf_for_remove_chromM
 
     output:
     file "*_no_chromM.gtf" into no_chromM_gtf
@@ -307,7 +308,7 @@ process extract_stop_codons_from_gtf {
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
     input:
-    val x from gtf_ch
+    set val(name), file(gtf) from gtf_for_extract_stop_codons
 
     output:
     file "*_stop_codon.gtf" into stop_codons_gtf
