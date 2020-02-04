@@ -119,13 +119,6 @@ if (params.gz) {
      .set{gz_ch}
 }
 
-if (params.gz) {
-  Channel.fromPath(params.gz, checkIfExists: true)
-     .map{ f -> tuple(f.baseName, tuple(file(f)))}
-     .ifEmpty {exit 1, "gz file not found: ${params.gz}"}
-     .set{gz_ch}
-}
-
  if (params.gtf) {
    Channel.fromPath(params.gtf, checkIfExists: true)
       .map{ f -> tuple(f.baseName, tuple(file(f)))}
@@ -288,24 +281,24 @@ process get_only_cds {
 }
 
 /*writing process for intersecting CDs with BAM*/
-// process intersect_cds_bam {
-//     tag "$name"
-//     label 'process_low'
-//     publishDir "${params.outdir}/unspliced_bam_in_cds", mode: 'copy',
-//         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
-//
-//     input:
-//     file x from only_cds
-//     file y from unspliced_bam
-//
-//     output:
-//     file "*_cds.bam" into unspliced_bam_in_cds
-//
-//     script:
-//     """
-//      bedtools intersect -f 1 -a $y -b $x > ${y.simpleName}_cds.bam
-//     """
-// }
+process intersect_cds_bam {
+    tag "$name"
+    label 'process_low'
+    publishDir "${params.outdir}/unspliced_bam_in_cds", mode: 'copy',
+        saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
+
+    input:
+    file x from only_cds
+    file y from unspliced_bam
+
+    output:
+    file "*_cds.bam" into unspliced_bam_in_cds
+
+    script:
+    """
+     bedtools intersect -f 1 -a $y -b $x > ${y.simpleName}_cds.bam
+    """
+}
 /*getting stop codon from gtf*/
 process extract_stop_codons_from_gtf {
     tag "$name"
