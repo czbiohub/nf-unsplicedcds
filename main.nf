@@ -315,7 +315,7 @@ process extract_stop_codons_from_gtf {
 
     script:
     """
-     bioawk -c gff 'feature == "stop_codon"' $x > ${gtf.simpleName}_stop_codon.gtf
+     bioawk -c gff 'feature == "stop_codon"' $gtf > ${gtf.simpleName}_stop_codon.gtf
     """
 }
 /*
