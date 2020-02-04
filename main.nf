@@ -307,14 +307,14 @@ process extract_stop_codons_from_gtf {
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
     input:
-    set val(name), file(gtf) from gtf_ch
+    val x from gtf_ch
 
     output:
     file "*_stop_codon.gtf" into stop_codons_gtf
 
     script:
     """
-     bioawk -c gff 'feature == "stop_codon"' $gtf > ${gtf.simpleName}_stop_codon.gtf
+     bioawk -c gff 'feature == "stop_codon"' $x > ${gtf.simpleName}_stop_codon.gtf
     """
 }
 /*
