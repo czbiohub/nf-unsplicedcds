@@ -318,6 +318,26 @@ process extract_stop_codons_from_gtf {
      bioawk -c gff '\$feature == "stop_codon"' $gtf > ${gtf.simpleName}_stop_codon.gtf
     """
 }
+/*Bedtools subtract out stop codons from “unspliced bams with coding only”*/
+process subtract_stopcodons_bam {
+    tag "$name"
+    label 'process_low'
+    publishDir "${params.outdir}/unspliced_bam_in_cds_no_stop_codon", mode: 'copy',
+        saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
+
+    input:
+    file x from unspliced_bam_in_cds
+    file y from stop_codons_gtf
+
+    output:
+    file "*_cds_no_stop_codon.bam" into unspliced_bam_in_cds
+
+    script:
+    """
+     bedtools subtract -A -a $x -b $y > ${x.simpleName}_cds_no_stop_codon.bam
+    """
+
+
 /*
  * STEP 2 -
  */
