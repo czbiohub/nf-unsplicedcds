@@ -336,7 +336,7 @@ process subtract_stopcodons_bam {
     """
      bedtools subtract -A -a $x -b $y > ${x.simpleName}_cds_no_stop_codon.bam
     """
-
+}
 
 /*
  * STEP 2 -
