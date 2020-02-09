@@ -330,7 +330,7 @@ process subtract_stopcodons_bam {
     file y from stop_codons_gtf
 
     output:
-    file "*_cds_no_stop_codon.bam" into unspliced_bam_in_cds
+    file "*_cds_no_stop_codon.bam" into unspliced_bam_in_cds_no_stop_codon
 
     script:
     """
