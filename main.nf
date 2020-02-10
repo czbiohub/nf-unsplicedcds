@@ -33,6 +33,7 @@ def helpMessage() {
       --outdir                      Local or S3 directory where resulting files will be saved.
       --bam                         Path to input bam file (must be surrounded with quotes)
       --gtf                         Path to input gtf file.
+      --gz                          Path to unzipped gtf file.
       -profile                      Configuration profile to use. Can use multiple (comma separated)
                                     Available: conda, docker, singularity, awsbatch, test and more.
 
@@ -109,13 +110,22 @@ ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
        .map{ f -> tuple(f.baseName, tuple(file(f))) }
        .ifEmpty { exit 1, "Bam file not found: ${params.bam}" }
        .set{bam_ch}
+
 }
+if (params.gz) {
+  Channel.fromPath(params.gz, checkIfExists: true)
+     .map{ f -> tuple(f.baseName, tuple(file(f)))}
+     .ifEmpty {exit 1, "gz file not found: ${params.gz}"}
+     .set{gz_ch}
+}
+
  if (params.gtf) {
    Channel.fromPath(params.gtf, checkIfExists: true)
       .map{ f -> tuple(f.baseName, tuple(file(f)))}
       .ifEmpty {exit 1, "Gtf file not found: ${params.gtf}"}
       .set{gtf_ch}
  }
+ gtf_ch.into{gtf_for_remove_chromM; gtf_for_extract_stop_codons}
 
 // Header log info
 log.info nfcoreHeader()
@@ -126,6 +136,7 @@ summary['Run Name']         = custom_runName ?: workflow.runName
 summary['BAM']              = params.bam
 summary['Fasta Ref']        = params.fasta
 summary['GTF']              = params.gtf
+summary['gz']               = params.gz
 summary['Data Type']        = params.singleEnd ? 'Single-End' : 'Paired-End'
 summary['Max Resources']    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
 if (workflow.containerEngine) summary['Container'] = "$workflow.containerEngine - $workflow.container"
@@ -213,6 +224,117 @@ process samtools_get_unspliced {
     script:
     """
     samtools view -h -F 4 $bam  | awk '\$6 !~ /N/ || \$1 ~ /@/' | samtools view -bS > ${bam.simpleName}_unspliced.bam
+    """
+}
+process unzip_GTF {
+    tag "$name"
+    label 'process_low'
+    publishDir "${params.outdir}/unzipped_gtf", mode: 'copy',
+        saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
+
+    input:
+    set val(name), file(gz) from gz_ch
+
+    output:
+    file "*.gtf" into unzipped_gtf
+
+    script:
+    """
+     gunzip -c $gz > ${gz.simpleName}.gtf
+    """
+}
+
+process remove_chrom_m_from_gtf {
+    tag "$name"
+    label 'process_low'
+    publishDir "${params.outdir}/no_chromM_gtf", mode: 'copy',
+        saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
+
+    input:
+    set val(name), file(gtf) from gtf_for_remove_chromM
+
+    output:
+    file "*_no_chromM.gtf" into no_chromM_gtf
+
+    script:
+    """
+     bioawk -c gff 'seqname != "chrM"' $gtf > ${gtf.simpleName}_no_chromM.gtf
+    """
+}
+
+/*need to get just coding sequences with input as _no_chromM*/
+process get_only_cds {
+    tag "$name"
+    label 'process_low'
+    publishDir "${params.outdir}/only_cds", mode: 'copy',
+        saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
+
+    input:
+    file x from no_chromM_gtf
+
+    output:
+    file "*_cds.gtf" into only_cds
+
+    script:
+    """
+     bioawk -c gff '\$feature == "CDS"' $x > ${x.simpleName}_cds.gtf
+    """
+}
+
+/*writing process for intersecting CDs with BAM*/
+process intersect_cds_bam {
+    tag "$name"
+    label 'process_low'
+    publishDir "${params.outdir}/unspliced_bam_in_cds", mode: 'copy',
+        saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
+
+    input:
+    file x from only_cds
+    file y from unspliced_bam
+
+    output:
+    file "*_cds.bam" into unspliced_bam_in_cds
+
+    script:
+    """
+     bedtools intersect -f 1 -a $y -b $x > ${y.simpleName}_cds.bam
+    """
+}
+/*getting stop codon from gtf*/
+process extract_stop_codons_from_gtf {
+    tag "$name"
+    label 'process_low'
+    publishDir "${params.outdir}/stop_codons_gtf", mode: 'copy',
+        saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
+
+    input:
+    set val(name), file(gtf) from gtf_for_extract_stop_codons
+
+    output:
+    file "*_stop_codon.gtf" into stop_codons_gtf
+
+    script:
+    """
+     bioawk -c gff '\$feature == "stop_codon"' $gtf > ${gtf.simpleName}_stop_codon.gtf
+    """
+}
+/*Bedtools subtract out stop codons from “unspliced bams with coding only”*/
+process subtract_stopcodons_bam {
+    tag "$name"
+    label 'process_low'
+    publishDir "${params.outdir}/unspliced_bam_in_cds_no_stop_codon", mode: 'copy',
+        saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
+
+    input:
+    file x from unspliced_bam_in_cds
+    file y from stop_codons_gtf
+
+    output:
+    file "*_cds_no_stop_codon.bam" into unspliced_bam_in_cds_no_stop_codon
+
+    script:
+    """
+     bedtools subtract -A -a $x -b $y > ${x.simpleName}_cds_no_stop_codon.bam
     """
 }
 

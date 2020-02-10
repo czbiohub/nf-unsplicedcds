@@ -13,3 +13,4 @@ dependencies:
   - conda-forge::r-base=3.6.1
   - samtools=1.9
   - bedtools=2.29.0
+  - bioawk=1.0
