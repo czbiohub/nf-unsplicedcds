@@ -102,6 +102,7 @@ if ( workflow.profile == 'awsbatch') {
 ch_multiqc_config = file(params.multiqc_config, checkIfExists: true)
 ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
 
+//add this when I have fixed gz/gtf issue - gz_ch = Channel.empty{};
 /*
  * Create a channel for input read files
  */
@@ -112,12 +113,14 @@ ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
        .set{bam_ch}
 
 }
+
 if (params.gz) {
   Channel.fromPath(params.gz, checkIfExists: true)
      .map{ f -> tuple(f.baseName, tuple(file(f)))}
      .ifEmpty {exit 1, "gz file not found: ${params.gz}"}
      .set{gz_ch}
 }
+
 
  if (params.gtf) {
    Channel.fromPath(params.gtf, checkIfExists: true)
@@ -330,11 +333,11 @@ process subtract_stopcodons_bam {
     file y from stop_codons_gtf
 
     output:
-    file "*_cds_no_stop_codon.bam" into unspliced_bam_in_cds_no_stop_codon
+    file "*_no_stop_codon.bam" into unspliced_bam_in_cds_no_stop_codon
 
     script:
     """
-     bedtools subtract -A -a $x -b $y > ${x.simpleName}_cds_no_stop_codon.bam
+     bedtools subtract -A -a $x -b $y > ${x.simpleName}_no_stop_codon.bam
     """
 }
 
@@ -368,7 +371,7 @@ process subtract_stopcodons_bam {
 /*
  * STEP 3 - Output Description HTML
  */
-process output_documentation {
+/*process output_documentation {
     publishDir "${params.outdir}/pipeline_info", mode: 'copy'
 
     input:
@@ -381,7 +384,7 @@ process output_documentation {
     """
     markdown_to_html.r $output_docs results_description.html
     """
-}
+}*/
 
 /*
  * Completion e-mail notification
