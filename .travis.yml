@@ -18,7 +18,7 @@ matrix:
       # Install nf-core/tools
       - pip install --upgrade pip
       - pip install nf-core
-    script: nf-core lint ${TRAVIS_BUILD_DIR}
+    #script: nf-core lint ${TRAVIS_BUILD_DIR}
     python: '3.6'
     jdk: openjdk8
 
