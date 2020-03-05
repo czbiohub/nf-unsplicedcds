@@ -22,8 +22,8 @@ before_install:
   - docker pull czbiohub/nf-unsplicedcds:dev
   # Fake the tag locally so that the pipeline runs properly
   # Looks weird when this is :dev to :dev, but makes sense when testing code for a release (:dev to :1.0.1)
-  - docker tag czbiohub/nf-unsplicedcds:latest czbiohub/nf-unsplicedcds:dev
-
+  - docker tag czbiohub/nf-unsplicedcds:dev czbiohub/nf-unsplicedcds:dev
+  
 install:
   # Install Nextflow
   - mkdir /tmp/nextflow && cd /tmp/nextflow
