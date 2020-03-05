@@ -13,14 +13,7 @@ matrix:
     jdk: openjdk8
   - name: "Latest Nextflow version, regular test suite"
     env: NXF_VER='' SUITE=test FLAGS=
-  - name: "Lint the pipeline code"
-    install:
-      # Install nf-core/tools
-      - pip install --upgrade pip
-      - pip install nf-core
-    #script: nf-core lint ${TRAVIS_BUILD_DIR}
-    python: '3.6'
-    jdk: openjdk8
+
 
 before_install:
   # PRs to master are only ok if coming from dev branch
@@ -36,19 +29,8 @@ install:
   - mkdir /tmp/nextflow && cd /tmp/nextflow
   - wget -qO- get.nextflow.io | bash
   - sudo ln -s /tmp/nextflow/nextflow /usr/local/bin/nextflow
-  # Install nf-core/tools
-  - pip install --upgrade pip
-  - pip install nf-core
-  # Reset
-  - mkdir ${TRAVIS_BUILD_DIR}/tests && cd ${TRAVIS_BUILD_DIR}/tests
-  # Install markdownlint-cli
-  - sudo apt-get install npm && npm install -g markdownlint-cli
 
 
 script:
-  # Lint the pipeline code
-  #*- nf-core lint ${TRAVIS_BUILD_DIR}
-  # Lint the documentation
-  #- markdownlint ${TRAVIS_BUILD_DIR} -c ${TRAVIS_BUILD_DIR}/.github/markdownlint.yml
   # Run the pipeline with the test profile
   - nextflow run ${TRAVIS_BUILD_DIR} -profile test,docker
