@@ -13,6 +13,8 @@ matrix:
     jdk: openjdk8
   - name: "Latest Nextflow version, regular test suite"
     env: NXF_VER='' SUITE=test FLAGS=
+  - name: "Latest Nextflow version, test unzipped gtf"
+    env: NXF_VER='' SUITE=test_gtf FLAGS=
 
 
 before_install:
@@ -23,7 +25,7 @@ before_install:
   # Fake the tag locally so that the pipeline runs properly
   # Looks weird when this is :dev to :dev, but makes sense when testing code for a release (:dev to :1.0.1)
   - docker tag czbiohub/nf-unsplicedcds:dev czbiohub/nf-unsplicedcds:dev
-  
+
 install:
   # Install Nextflow
   - mkdir /tmp/nextflow && cd /tmp/nextflow
