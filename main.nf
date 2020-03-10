@@ -114,11 +114,11 @@ ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
 
 }
 
-if (params.gz) {
+if (params.gtf_gz) {
   Channel.fromPath(params.gz, checkIfExists: true)
      .map{ f -> tuple(f.baseName, tuple(file(f)))}
      .ifEmpty {exit 1, "gz file not found: ${params.gz}"}
-     .set{gz_ch}
+     .set{gtf_gz_ch}
 }
 
 
@@ -229,24 +229,25 @@ process samtools_get_unspliced {
     samtools view -h -F 4 $bam  | awk '\$6 !~ /N/ || \$1 ~ /@/' | samtools view -bS > ${bam.simpleName}_unspliced.bam
     """
 }
-process unzip_GTF {
+if (params.gtf_gz) {
+ process unzip_gtf {
     tag "$name"
     label 'process_low'
     publishDir "${params.outdir}/unzipped_gtf", mode: 'copy',
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
     input:
-    set val(name), file(gz) from gz_ch
+    set val(name), file(gtf_gz_ch) from gtf_gz_ch
 
     output:
     file "*.gtf" into unzipped_gtf
 
     script:
     """
-     gunzip -c $gz > ${gz.simpleName}.gtf
+     gunzip -c $gtf_gz > ${gtf_gz.simpleName}.gtf
     """
 }
-
+}
 process remove_chrom_m_from_gtf {
     tag "$name"
     label 'process_low'
