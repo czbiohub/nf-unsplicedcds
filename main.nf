@@ -33,7 +33,7 @@ def helpMessage() {
       --outdir                      Local or S3 directory where resulting files will be saved.
       --bam                         Path to input bam file (must be surrounded with quotes)
       --gtf                         Path to input gtf file.
-      --gz                          Path to unzipped gtf file.
+      --gtf_gz                      Path to gzipped gtf file.
       -profile                      Configuration profile to use. Can use multiple (comma separated)
                                     Available: conda, docker, singularity, awsbatch, test and more.
 
