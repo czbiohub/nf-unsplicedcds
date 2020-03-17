@@ -115,9 +115,9 @@ ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
 }
 
 if (params.gtf_gz) {
-  Channel.fromPath(params.gz, checkIfExists: true)
+  Channel.fromPath(params.gtf_gz, checkIfExists: true)
      .map{ f -> tuple(f.baseName, tuple(file(f)))}
-     .ifEmpty {exit 1, "gz file not found: ${params.gz}"}
+     .ifEmpty {exit 1, "gz file not found: ${params.gtf_gz}"}
      .set{gtf_gz_ch}
 }
 
