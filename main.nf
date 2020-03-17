@@ -138,8 +138,8 @@ summary['Run Name']         = custom_runName ?: workflow.runName
 // TODO nf-core: Report custom parameters here
 summary['BAM']              = params.bam
 summary['Fasta Ref']        = params.fasta
-summary['GTF']              = params.gtf
-summary['gz']               = params.gz
+if (params.gtf) summary['GTF']             = params.gtf
+if (params.gtf_gz) summary['gzipped GTF']               = params.gtf_gz
 summary['Data Type']        = params.singleEnd ? 'Single-End' : 'Paired-End'
 summary['Max Resources']    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
 if (workflow.containerEngine) summary['Container'] = "$workflow.containerEngine - $workflow.container"
