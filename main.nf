@@ -33,7 +33,7 @@ def helpMessage() {
       --outdir                      Local or S3 directory where resulting files will be saved.
       --bam                         Path to input bam file (must be surrounded with quotes)
       --gtf                         Path to input gtf file.
-      --gz                          Path to unzipped gtf file.
+      --gtf_gz                      Path to gzipped gtf file.
       -profile                      Configuration profile to use. Can use multiple (comma separated)
                                     Available: conda, docker, singularity, awsbatch, test and more.
 
@@ -114,11 +114,11 @@ ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
 
 }
 
-if (params.gz) {
-  Channel.fromPath(params.gz, checkIfExists: true)
+if (params.gtf_gz) {
+  Channel.fromPath(params.gtf_gz, checkIfExists: true)
      .map{ f -> tuple(f.baseName, tuple(file(f)))}
-     .ifEmpty {exit 1, "gz file not found: ${params.gz}"}
-     .set{gz_ch}
+     .ifEmpty {exit 1, "gz file not found: ${params.gtf_gz}"}
+     .set{gtf_gz_ch}
 }
 
 
@@ -138,8 +138,8 @@ summary['Run Name']         = custom_runName ?: workflow.runName
 // TODO nf-core: Report custom parameters here
 summary['BAM']              = params.bam
 summary['Fasta Ref']        = params.fasta
-summary['GTF']              = params.gtf
-summary['gz']               = params.gz
+if (params.gtf) summary['GTF']             = params.gtf
+if (params.gtf_gz) summary['gzipped GTF']               = params.gtf_gz
 summary['Data Type']        = params.singleEnd ? 'Single-End' : 'Paired-End'
 summary['Max Resources']    = "$params.max_memory memory, $params.max_cpus cpus, $params.max_time time per job"
 if (workflow.containerEngine) summary['Container'] = "$workflow.containerEngine - $workflow.container"
@@ -229,24 +229,25 @@ process samtools_get_unspliced {
     samtools view -h -F 4 $bam  | awk '\$6 !~ /N/ || \$1 ~ /@/' | samtools view -bS > ${bam.simpleName}_unspliced.bam
     """
 }
-process unzip_GTF {
+if (params.gtf_gz) {
+ process unzip_gtf {
     tag "$name"
     label 'process_low'
     publishDir "${params.outdir}/unzipped_gtf", mode: 'copy',
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
     input:
-    set val(name), file(gz) from gz_ch
+    set val(name), file(gtf_gz_ch) from gtf_gz_ch
 
     output:
     file "*.gtf" into unzipped_gtf
 
     script:
     """
-     gunzip -c $gz > ${gz.simpleName}.gtf
+     gunzip -c $gtf_gz > ${gtf_gz.simpleName}.gtf
     """
 }
-
+}
 process remove_chrom_m_from_gtf {
     tag "$name"
     label 'process_low'
