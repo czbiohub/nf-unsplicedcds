@@ -122,10 +122,9 @@ if (params.gtf_gz) {
 
 
  if (params.gtf) {
-   Channel.fromPath(params.gtf, checkIfExists: true)
+   gtf_ch = Channel.fromPath(params.gtf, checkIfExists: true)
       .map{ f -> tuple(f.baseName, tuple(file(f)))}
       .ifEmpty {exit 1, "Gtf file not found: ${params.gtf}"}
-      .set{gtf_ch}
  }
  gtf_ch.into{gtf_for_remove_chromM; gtf_for_extract_stop_codons}
 
