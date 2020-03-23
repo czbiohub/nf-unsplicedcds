@@ -205,6 +205,7 @@ process get_software_versions {
     echo $workflow.nextflow.version > v_nextflow.txt
     samtools --version > v_samtools.txt
     bedtools --version > v_bedtools.txt
+    bioawk --version > v_bioawk.txt 
     scrape_software_versions.py &> software_versions_mqc.yaml
     """
 }
