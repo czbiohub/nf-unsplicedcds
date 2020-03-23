@@ -118,7 +118,6 @@ if (params.gtf_gz) {
   gtf_gz_ch = Channel.fromPath(params.gz, checkIfExists: true)
      .map{ f -> tuple(f.baseName, tuple(file(f)))}
      .ifEmpty {exit 1, "gz file not found: ${params.gz}"}
-     .set{gtf_gz_ch}
 }
 
 
