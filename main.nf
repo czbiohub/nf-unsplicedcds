@@ -107,10 +107,10 @@ ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
  * Create a channel for input read files
  */
  if (params.bam) {
-  Channel.fromPath(params.bam, checkIfExists: true)
+  bam_ch = Channel.fromPath(params.bam, checkIfExists: true)
        .map{ f -> tuple(f.baseName, tuple(file(f))) }
        .ifEmpty { exit 1, "Bam file not found: ${params.bam}" }
-       .set{bam_ch}
+       
 
 }
 
