@@ -219,11 +219,12 @@ process samtools_get_unspliced {
     set val(name), file(bam) from bam_ch
 
     output:
-    file "*_unspliced.bam" into unspliced_bam
+    set val(name), file(output_bam) into unspliced_bam
 
     script:
+    output_bam = "${bam.simpleName}_unspliced.bam"
     """
-    samtools view -h -F 4 $bam  | awk '\$6 !~ /N/ || \$1 ~ /@/' | samtools view -bS > ${bam.simpleName}_unspliced.bam
+    samtools view -h -F 4 $bam  | awk '\$6 !~ /N/ || \$1 ~ /@/' | samtools view -bS > ${output_bam}
     """
 }
 if (params.gtf_gz) {
@@ -281,6 +282,7 @@ process get_only_cds {
      bioawk -c gff '\$feature == "CDS"' $x > ${x.simpleName}_cds.gtf
     """
 }
+unspliced_bam.dump(tag:"unspliced_bam_channel")
 
 /*writing process for intersecting CDs with BAM*/
 process intersect_cds_bam {
@@ -291,7 +293,7 @@ process intersect_cds_bam {
 
     input:
     file x from only_cds
-    file y from unspliced_bam
+    set val(name), file(y) from unspliced_bam
 
     output:
     file "*_cds.bam" into unspliced_bam_in_cds
