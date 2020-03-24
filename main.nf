@@ -108,11 +108,10 @@ ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
  */
  if (params.bam) {
   bam_ch = Channel.fromPath(params.bam, checkIfExists: true)
-       .map{ f -> tuple(f.baseName, tuple(file(f))) }
        .ifEmpty { exit 1, "Bam file not found: ${params.bam}" }
-       
-
+       .dump(tag:'bam_ch')
 }
+
 
 if (params.gtf_gz) {
   gtf_gz_ch = Channel.fromPath(params.gz, checkIfExists: true)
