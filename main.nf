@@ -293,7 +293,7 @@ process intersect_cds_bam {
 
     input:
     file x from only_cds
-    file y from unspliced_bam
+    file y from Channel.value(unspliced_bam)
 
     output:
     file "*_cds.bam" into unspliced_bam_in_cds
