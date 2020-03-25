@@ -293,7 +293,7 @@ process intersect_cds_bam {
 
     input:
     file x from only_cds
-    set val(name), file(y) from unspliced_bam
+    set val(name), file(output_bam) from unspliced_bam
 
     output:
     file "*_cds.bam" into unspliced_bam_in_cds
