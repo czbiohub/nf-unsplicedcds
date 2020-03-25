@@ -293,14 +293,14 @@ process intersect_cds_bam {
 
     input:
     file x from only_cds
-    set val(name), file(output_bam) from unspliced_bam
+    file y from unspliced_bam
 
     output:
     file "*_cds.bam" into unspliced_bam_in_cds
 
     script:
     """
-     bedtools intersect -f 1 -a $y -b $x > ${output_bam.simpleName}_cds.bam
+     bedtools intersect -f 1 -a $y -b $x > ${y.simpleName}_cds.bam
     """
 }
 /*getting stop codon from gtf*/
