@@ -292,8 +292,8 @@ process intersect_cds_bam {
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
     input:
-    file x from Channel.from(only_cds)
-    file y from Channel.value(unspliced_bam)
+    file x from Channel.value(only_cds)
+    file y from Channel.from(unspliced_bam)
 
     output:
     file "*_cds.bam" into unspliced_bam_in_cds
