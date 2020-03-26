@@ -33,7 +33,7 @@ def helpMessage() {
       --outdir                      Local or S3 directory where resulting files will be saved.
       --bam                         Path to input bam file (must be surrounded with quotes)
       --gtf                         Path to input gtf file.
-      --gz                          Path to unzipped gtf file.
+      --gtf_gz                      Path to gzipped gtf file.
       -profile                      Configuration profile to use. Can use multiple (comma separated)
                                     Available: conda, docker, singularity, awsbatch, test and more.
 
@@ -107,28 +107,25 @@ ch_output_docs = file("$baseDir/docs/output.md", checkIfExists: true)
  * Create a channel for input read files
  */
  if (params.bam) {
-  Channel.fromPath(params.bam, checkIfExists: true)
-       .map{ f -> tuple(f.baseName, tuple(file(f))) }
+  bam_ch = Channel.fromPath(params.bam, checkIfExists: true)
        .ifEmpty { exit 1, "Bam file not found: ${params.bam}" }
-       .set{bam_ch}
-
+       .dump(tag:'bam_ch')
 }
 
-if (params.gz) {
-  Channel.fromPath(params.gz, checkIfExists: true)
+
+if (params.gtf_gz) {
+  gtf_gz_ch = Channel.fromPath(params.gz, checkIfExists: true)
      .map{ f -> tuple(f.baseName, tuple(file(f)))}
      .ifEmpty {exit 1, "gz file not found: ${params.gz}"}
-     .set{gz_ch}
 }
 
 
  if (params.gtf) {
-   Channel.fromPath(params.gtf, checkIfExists: true)
+   gtf_ch = Channel.fromPath(params.gtf, checkIfExists: true)
       .map{ f -> tuple(f.baseName, tuple(file(f)))}
       .ifEmpty {exit 1, "Gtf file not found: ${params.gtf}"}
-      .set{gtf_ch}
+   gtf_ch.into{gtf_for_remove_chromM; gtf_for_extract_stop_codons}
  }
- gtf_ch.into{gtf_for_remove_chromM; gtf_for_extract_stop_codons}
 
 // Header log info
 log.info nfcoreHeader()
@@ -222,31 +219,33 @@ process samtools_get_unspliced {
     set val(name), file(bam) from bam_ch
 
     output:
-    file "*_unspliced.bam" into unspliced_bam
+    set val(name), file(output_bam) into unspliced_bam
 
     script:
+    output_bam = "${bam.simpleName}_unspliced.bam"
     """
-    samtools view -h -F 4 $bam  | awk '\$6 !~ /N/ || \$1 ~ /@/' | samtools view -bS > ${bam.simpleName}_unspliced.bam
+    samtools view -h -F 4 $bam  | awk '\$6 !~ /N/ || \$1 ~ /@/' | samtools view -bS > ${output_bam}
     """
 }
-process unzip_GTF {
+if (params.gtf_gz) {
+ process unzip_gtf {
     tag "$name"
     label 'process_low'
     publishDir "${params.outdir}/unzipped_gtf", mode: 'copy',
         saveAs: { filename -> filename.indexOf(".zip") > 0 ? "zips/$filename" : "$filename" }
 
     input:
-    set val(name), file(gz) from gz_ch
+    set val(name), file(gtf_gz_ch) from gtf_gz_ch
 
     output:
     file "*.gtf" into unzipped_gtf
 
     script:
     """
-     gunzip -c $gz > ${gz.simpleName}.gtf
+     gunzip -c $gtf_gz > ${gtf_gz.simpleName}.gtf
     """
 }
-
+}
 process remove_chrom_m_from_gtf {
     tag "$name"
     label 'process_low'
@@ -283,6 +282,9 @@ process get_only_cds {
      bioawk -c gff '\$feature == "CDS"' $x > ${x.simpleName}_cds.gtf
     """
 }
+unspliced_bam.dump(tag:"unspliced_bam_channel").set{unspliced_bam_channel}
+
+
 
 /*writing process for intersecting CDs with BAM*/
 process intersect_cds_bam {
@@ -293,7 +295,7 @@ process intersect_cds_bam {
 
     input:
     file x from only_cds
-    file y from unspliced_bam
+    set val(name), file(y) from unspliced_bam_channel
 
     output:
     file "*_cds.bam" into unspliced_bam_in_cds
