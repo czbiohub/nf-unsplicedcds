@@ -282,7 +282,7 @@ process get_only_cds {
      bioawk -c gff '\$feature == "CDS"' $x > ${x.simpleName}_cds.gtf
     """
 }
-/*unspliced_bam.dump(tag:"unspliced_bam_channel").set{unspliced_bam_channel}*/
+/*unspliced_bam.dump(tag:"unspliced_bam_channel").set{unspliced_bam_channel}*
 
 
 /*writing process for intersecting CDs with BAM*/
@@ -294,7 +294,7 @@ process intersect_cds_bam {
 
     input:
     file x from only_cds
-    file y from unspliced_bam
+    set val(name), file(y) from unspliced_bam
 
     output:
     file "*_cds.bam" into unspliced_bam_in_cds
