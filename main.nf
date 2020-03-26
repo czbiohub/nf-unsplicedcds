@@ -124,8 +124,8 @@ if (params.gtf_gz) {
    gtf_ch = Channel.fromPath(params.gtf, checkIfExists: true)
       .map{ f -> tuple(f.baseName, tuple(file(f)))}
       .ifEmpty {exit 1, "Gtf file not found: ${params.gtf}"}
+   gtf_ch.into{gtf_for_remove_chromM; gtf_for_extract_stop_codons}
  }
- gtf_ch.into{gtf_for_remove_chromM; gtf_for_extract_stop_codons}
 
 // Header log info
 log.info nfcoreHeader()
